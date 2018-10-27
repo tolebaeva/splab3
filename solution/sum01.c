@@ -2,18 +2,6 @@
 does same thing as 'sum01'
 shell logic is performed by the parent process
 */
-
-/* sum01
-#! /bin/bash
-list=$(cat log.txt | cut -f4 -d' ' | sed -E 's/\[0*([0-9]*).*/\1/')
-sum=0
-for i in $list
-do
-  sum=$(( sum + i ))
-done
-echo $sum
-*/
-
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -27,14 +15,13 @@ int main() {
 	if (!pid1) {
 		dup2(A[1], 1);
 		close(A[0]);
-		close(A[1]);      
+		close(A[1]);
 		execlp("cat","cat", "log.txt", NULL);
 		exit(EXIT_FAILURE);
-	}  
-
-  int B[2]; // pipe B
+	}
+	
+	int B[2]; // pipe B
 	pipe(B);
-
 	pid_t pid2 = fork();                                       
 	if (!pid2) { // cut
 		dup2(A[0], 0);
@@ -49,9 +36,13 @@ int main() {
 		exit(EXIT_FAILURE);                            
 	}
 	
-  int C[2]; // pipe C
+// pipe C is used to store result of $(cat log.txt | cut -f4 -d' ' | sed -E 's/\[0*([0-9]*).*/\1/') to $list
+// but in our parent process there is no $list
+// we just read from the above command directly
+// and sum up all integers (see for loop below)
+	int C[2]; 
 	pipe(C);
-
+	
 	pid_t pid3 = fork();                                       
 	if (!pid3) { // grep
 		dup2(B[0], 0);
@@ -67,8 +58,13 @@ int main() {
 		execlp("sed","sed", "-E", "s/\\[0*([0-9]*).*/\\1/", NULL); // sed -E 's/\[0*([0-9]*).*/\1/'
 		exit(EXIT_FAILURE);                            
 	}
-  close(A[0]); close(A[1]);
-  close(B[0]); close(B[1]);
+	
+	close(A[0]);
+	close(A[1]);
+	
+	close(B[0]);
+	close(B[1]);
+	
 	close(C[1]);
 
 	FILE* Cin = fdopen(C[0],"r"); // Cin is FILE* object made from C[0]
