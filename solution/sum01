@@ -1,0 +1,9 @@
+#! /bin/bash
+list=$(cat log.txt | cut -f4 -d' ' | sed -E 's/\[0*([0-9]*).*/\1/')
+sum=0
+for i in $list
+do
+  sum=$(( sum + i ))
+done
+
+echo $sum
