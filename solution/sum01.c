@@ -5,16 +5,12 @@ shell logic is performed by the parent process
 
 /* sum01
 #! /bin/bash
-#                  A               B                               
 list=$(cat log.txt | cut -f4 -d' ' | sed -E 's/\[0*([0-9]*).*/\1/')
-# C is the pipe that is used to store the result of the above pipeline to $list
 sum=0
 for i in $list
 do
   sum=$(( sum + i ))
 done
-# the above loop uses C pipe
-
 echo $sum
 */
 
