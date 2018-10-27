@@ -1,0 +1,2 @@
+#! /bin/bash
+cat log.txt | cut -f4 -d' ' | sed -E 's/\[0*([0-9]*).*/\1/' | awk '{sum+=$1} END {print sum}'
