@@ -36,21 +36,23 @@ int main() {
 		exit(EXIT_FAILURE);                            
 	}
 	
+	// no need for pipe A anymore, parent closes it completely
+	close(A[0]);
+	close(A[1]);
+	
 // pipe C is used to store result of $(cat log.txt | cut -f4 -d' ' | sed -E 's/\[0*([0-9]*).*/\1/') to $list
 // but in our parent process there is no $list
 // we just read from the above command directly
-// and sum up all integers (see for loop below)
+// and sum up all integers (see while loop below)
 	int C[2]; 
 	pipe(C);
 	
 	pid_t pid3 = fork();                                       
-	if (!pid3) { // grep
+	if (!pid3) { // sed
 		dup2(B[0], 0);
 		close(B[0]);
 		close(B[1]);
-		close(A[0]);
-		close(A[1]);
-
+		
 		dup2(C[1], 1);
 		close(C[0]);
 		close(C[1]);
@@ -59,14 +61,13 @@ int main() {
 		exit(EXIT_FAILURE);                            
 	}
 	
-	close(A[0]);
-	close(A[1]);
 	
+	// closing pipe ends that are no more used
 	close(B[0]);
 	close(B[1]);
-	
 	close(C[1]);
-
+	
+	// C[0] is used to calculate sum
 	FILE* Cin = fdopen(C[0],"r"); // Cin is FILE* object made from C[0]
 	int x,sum=0;
 	while(fscanf(Cin,"%d",&x)>0){ // this loop is like the loop of shell 
