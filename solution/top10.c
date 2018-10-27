@@ -1,4 +1,4 @@
-// example of running cat top10.c | grep 'if'
+// example of running 'cat top10.c | grep if'
 // to compile type 'gcc top10.c -o top10'
 // to run type './top10'
 #include <sys/types.h>
