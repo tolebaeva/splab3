@@ -70,5 +70,5 @@ int main() {
 	
 	close(C[0]);
 	close(C[1]);
-        waitpid(pid4, 0, 0);
+	waitpid(pid4, 0, 0);
 }
